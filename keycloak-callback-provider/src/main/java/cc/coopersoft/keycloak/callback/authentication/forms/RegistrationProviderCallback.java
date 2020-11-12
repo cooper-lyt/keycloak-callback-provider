@@ -9,18 +9,12 @@ import org.keycloak.authentication.ValidationContext;
 import org.keycloak.forms.login.LoginFormsProvider;
 import org.keycloak.models.*;
 import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.services.validation.Validation;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RegistrationProviderCallback implements FormAction, FormActionFactory {
 
   public static final String PROVIDER_ID = "registration-callback-provider";
-
-  public static final String PROVIDER_PARAM_NAMES = "registration.callback.provider";
-
-  private KeycloakSession session;
 
   private static final List<ProviderConfigProperty> configProperties = new ArrayList<>();
 
@@ -36,7 +30,7 @@ public class RegistrationProviderCallback implements FormAction, FormActionFacto
 
   @Override
   public boolean isConfigurable() {
-    return true;
+    return false;
   }
 
   @Override
@@ -61,9 +55,8 @@ public class RegistrationProviderCallback implements FormAction, FormActionFacto
 
   @Override
   public void success(FormContext context) {
-    String providerId = context.getAuthenticatorConfig().getConfig().get(PROVIDER_PARAM_NAMES);
-    if (!Validation.isBlank(providerId))
-      session.getProvider(CallbackService.class,providerId).onRegistration(context.getUser());
+
+    context.getSession().getProvider(CallbackService.class).onRegistration(context.getUser());
   }
 
   @Override
@@ -88,27 +81,18 @@ public class RegistrationProviderCallback implements FormAction, FormActionFacto
 
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
-    return configProperties;
+    return null;
   }
 
   @Override
   public FormAction create(KeycloakSession keycloakSession) {
-    this.session = keycloakSession;
     return this;
   }
 
   @Override
   public void init(Config.Scope scope) {
 
-    ProviderConfigProperty callbackType;
-    callbackType = new ProviderConfigProperty();
-    callbackType.setName(PROVIDER_PARAM_NAMES);
-    callbackType.setLabel("Provider id");
-    callbackType.setType(ProviderConfigProperty.LIST_TYPE);
-    callbackType.setOptions(session.listProviderIds(CallbackService.class).stream().sorted().collect(Collectors.toList()));
-    callbackType.setHelpText("Callback Provider id");
 
-    configProperties.add(callbackType);
 
   }
 

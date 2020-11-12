@@ -1,5 +1,6 @@
 package cc.coopersoft.keycloak.callback.providers;
 
+import cc.coopersoft.keycloak.callback.providers.spi.CallbackSenderService;
 import cc.coopersoft.keycloak.callback.providers.spi.CallbackService;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
@@ -13,7 +14,7 @@ import org.keycloak.models.UserModel;
 
 import java.util.Optional;
 
-public class RocketmqCallbackProvider implements CallbackService {
+public class RocketmqCallbackProvider implements CallbackSenderService {
   private static final Logger logger = Logger.getLogger(RocketmqCallbackProvider.class);
 
 
@@ -52,9 +53,15 @@ public class RocketmqCallbackProvider implements CallbackService {
     }
   }
 
-  @Override
-  public void onRegistration(UserModel user) {
 
+  @Override
+  public void close() {
+    producer.shutdown();
+  }
+
+
+  @Override
+  public void registrationCallback(UserModel user) {
     for (int i = 0; i < 10000000; i++)
       try {
         {
@@ -80,13 +87,5 @@ public class RocketmqCallbackProvider implements CallbackService {
           logger.error("rockmq send message fail!" , e);
         }
       }
-
   }
-
-  @Override
-  public void close() {
-    producer.shutdown();
-  }
-
-
 }

@@ -1,17 +1,17 @@
 package cc.coopersoft.keycloak.callback.providers;
 
-import cc.coopersoft.keycloak.callback.providers.spi.CallbackService;
-import cc.coopersoft.keycloak.callback.providers.spi.CallbackServiceProviderFactory;
+import cc.coopersoft.keycloak.callback.providers.spi.CallbackSenderService;
+import cc.coopersoft.keycloak.callback.providers.spi.CallbackSenderServiceProviderFactory;
 import org.keycloak.Config;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 
-public class RocketmqCallbackProviderFactory implements CallbackServiceProviderFactory {
+public class RocketmqCallbackProviderFactory implements CallbackSenderServiceProviderFactory {
 
   private Config.Scope scope;
 
   @Override
-  public CallbackService create(KeycloakSession keycloakSession) {
+  public CallbackSenderService create(KeycloakSession keycloakSession) {
     return new RocketmqCallbackProvider(scope);
   }
 

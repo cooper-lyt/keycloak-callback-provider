@@ -1,1 +1,2 @@
 cc.coopersoft.keycloak.callback.providers.spi.CallbackServiceSpi
+cc.coopersoft.keycloak.callback.providers.spi.CallbackSenderSpi
