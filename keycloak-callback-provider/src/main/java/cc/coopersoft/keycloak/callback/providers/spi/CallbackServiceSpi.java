@@ -12,7 +12,7 @@ public class CallbackServiceSpi implements Spi {
 
   @Override
   public String getName() {
-    return "callback";
+    return "callbackService";
   }
 
   @Override

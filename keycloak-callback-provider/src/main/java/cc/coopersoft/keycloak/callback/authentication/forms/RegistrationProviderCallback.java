@@ -16,8 +16,8 @@ public class RegistrationProviderCallback implements FormAction, FormActionFacto
 
   public static final String PROVIDER_ID = "registration-callback-provider";
 
-  private static final List<ProviderConfigProperty> configProperties = new ArrayList<>();
-
+  private static AuthenticationExecutionModel.Requirement[] REQUIREMENT_CHOICES = {
+          AuthenticationExecutionModel.Requirement.REQUIRED, AuthenticationExecutionModel.Requirement.DISABLED };
   @Override
   public String getDisplayType() {
     return "Registration provider callback";
@@ -35,7 +35,7 @@ public class RegistrationProviderCallback implements FormAction, FormActionFacto
 
   @Override
   public AuthenticationExecutionModel.Requirement[] getRequirementChoices() {
-    return new AuthenticationExecutionModel.Requirement[0];
+    return REQUIREMENT_CHOICES;
   }
 
   @Override
@@ -50,7 +50,7 @@ public class RegistrationProviderCallback implements FormAction, FormActionFacto
 
   @Override
   public void validate(ValidationContext validationContext) {
-
+    validationContext.success();
   }
 
   @Override

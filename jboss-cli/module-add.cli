@@ -5,11 +5,19 @@
 module add --name=keycloak-callback-provider --resources=keycloak-callback-provider.jar --dependencies=org.keycloak.keycloak-core,org.keycloak.keycloak-common,org.keycloak.keycloak-server-spi,org.keycloak.keycloak-server-spi-private,org.keycloak.keycloak-services,org.jboss.logging,javax.api,javax.ws.rs.api,javax.transaction.api,org.jboss.resteasy.resteasy-jaxrs,org.apache.httpcomponents,org.apache.commons.lang,javax.xml.bind.api,com.squareup.okhttp3
 
 # http provider
-module add --name=keycloak-callback-provider-http --resources=keycloak-callback-provider-http.jar --dependencies=org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.jboss.logging,keycloak-callback-provider,com.squareup.okhttp3
+module add --name=keycloak-callback-provider-http --resources=keycloak-callback-provider-http.jar --dependencies=com.google.code.gson,org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.jboss.logging,keycloak-callback-provider,com.squareup.okhttp3
 
 # rocketmq provider
-module add --name=com.alibaba.rocketmq.rocketmq-client --resources=rocketmq-client-3.6.2.Final.jar --dependencies=javax.xml.bind.api,com.google.code.gson,org.dom4j,org.apache.commons.codec,org.apache.commons.logging
-module add --name=keycloak-callback-provider-rocketmq --resources=keycloak-callback-provider-rocketmq.jar --dependencies=org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.jboss.logging,keycloak-callback-provider,com.alibaba.rocketmq.rocketmq-client
+
+module add --name=netty-tcnative-boringssl-static --resources=netty-tcnative-boringssl-static-1.1.33.Fork26.jar
+module add --name=org.apache.rocketmq-logging --resources=rocketmq-logging-4.4.0.jar
+module add --name=com.alibaba.fastjson --resources=fastjson-1.2.51.jar
+module add --name=org.apache.rocketmq.rocketmq-remoting --resources=rocketmq-remoting-4.4.0.jar --dependencies=io.netty,com.alibaba.fastjson,org.apache.rocketmq-logging,netty-tcnative-boringssl-static
+module add --name=org.apache.rocketmq.common --resources=rocketmq-common-4.4.0.jar --dependencies=org.apache.rocketmq.rocketmq-remoting,org.apache.rocketmq-logging
+
+module add --name=org.apache.commons-lang3 --resources=commons-lang3-3.4.jar
+module add --name=org.apache.rocketmq.rocketmq-client --resources=rocketmq-client-4.4.0.jar --dependencies=org.apache.commons-lang3,org.apache.rocketmq.common,org.apache.rocketmq.rocketmq-remoting,com.alibaba.fastjson,org.apache.rocketmq-logging,netty-tcnative-boringssl-static
+module add --name=keycloak-callback-provider-rocketmq --resources=keycloak-callback-provider-rocketmq.jar --dependencies=org.keycloak.keycloak-core,org.keycloak.keycloak-server-spi,org.jboss.logging,keycloak-callback-provider,org.apache.rocketmq.rocketmq-client,org.apache.rocketmq.common
 
 
 
@@ -20,7 +28,7 @@ batch
 /subsystem=keycloak-server:list-add(name=providers,value=module:keycloak-callback-provider)
 
 /subsystem=keycloak-server/spi=callbackService/:add
-/subsystem=keycloak-server/spi=callbackService/provider=default/:add(enabled=true,properties={service => ${env.KEYCLOAK_CALLBACK_PROVIDER_SERVER:} })
+/subsystem=keycloak-server/spi=callbackService/provider=default/:add(enabled=true,properties={service => ${env.KEYCLOAK_CALLBACK_PROVIDER_SERVER:}})
 
 /subsystem=keycloak-server/spi=callbackSenderService/:add
 
@@ -29,7 +37,7 @@ batch
 
 # rocketmq provider
 /subsystem=keycloak-server:list-add(name=providers,value=module:keycloak-callback-provider-rocketmq)
-/subsystem=keycloak-server/spi=callbackSenderService/provider=rocketmq/:add(enabled=true,properties={namesrv => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_NAME_SERVER:}, require => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_REQUIRE:} , topic => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_TOPIC:}})
+/subsystem=keycloak-server/spi=callbackSenderService/provider=rocketmq/:add(enabled=true,properties={namesrv => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_NAME_SERVER:}, require => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_REQUIRE:} , tags => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_TAGS:keycloak_registration} , group => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_GROUP:keycloak_registration} , topic => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_TOPIC:keycloak_registration}})
 
 
 
@@ -44,15 +52,16 @@ batch
 /subsystem=keycloak-server:list-add(name=providers,value=module:keycloak-callback-provider)
 
 /subsystem=keycloak-server/spi=callbackService/:add
+/subsystem=keycloak-server/spi=callbackService/provider=default/:add(enabled=true,properties={service => ${env.KEYCLOAK_CALLBACK_PROVIDER_SERVER:}})
+
+/subsystem=keycloak-server/spi=callbackSenderService/:add
 
 # http provider
 /subsystem=keycloak-server:list-add(name=providers,value=module:keycloak-callback-provider-http)
 
 # rocketmq provider
 /subsystem=keycloak-server:list-add(name=providers,value=module:keycloak-callback-provider-rocketmq)
-/subsystem=keycloak-server/spi=callbackService/provider=rocketmq/:add(enabled=true,properties={namesrv => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_NAME_SERVER:}, require => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_REQUIRE:} , topic => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_TOPIC:}})
-
-
+/subsystem=keycloak-server/spi=callbackSenderService/provider=rocketmq/:add(enabled=true,properties={namesrv => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_NAME_SERVER:}, require => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_REQUIRE:} , tags => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_TAGS:keycloak_registration} , group => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_GROUP:keycloak_registration} , topic => ${env.KEYCLOAK_CALLBACK_ROCKETMQ_TOPIC:keycloak_registration}})
 
 run-batch
 stop-embedded-server

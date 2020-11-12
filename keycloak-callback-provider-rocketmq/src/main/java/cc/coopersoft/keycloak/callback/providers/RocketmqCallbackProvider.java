@@ -1,13 +1,14 @@
 package cc.coopersoft.keycloak.callback.providers;
 
 import cc.coopersoft.keycloak.callback.providers.spi.CallbackSenderService;
-import cc.coopersoft.keycloak.callback.providers.spi.CallbackService;
-import com.alibaba.rocketmq.client.exception.MQClientException;
-import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
-import com.alibaba.rocketmq.client.producer.SendResult;
-import com.alibaba.rocketmq.client.producer.SendStatus;
-import com.alibaba.rocketmq.common.message.Message;
-import com.alibaba.rocketmq.remoting.common.RemotingHelper;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.SendStatus;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.logging.InternalLoggerFactory;
+import org.apache.rocketmq.remoting.common.RemotingHelper;
+import org.apache.rocketmq.remoting.common.RemotingUtil;
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.models.UserModel;
@@ -22,25 +23,29 @@ public class RocketmqCallbackProvider implements CallbackSenderService {
   private static final String NAME_SERVER_ADDRESS_PARAM_NAME ="namesrv"; //"192.168.1.2:9876;192.168.1.3:9876"
   private static final String TOPIC_PARAM_NAME = "topic";
   private static final String REQUIRE_PARAM_NAME = "require";
+  private static final String GROUP_PARAM_NAME ="group";
+  private static final String TAGS_PARAM_NAME ="tags";
 
-  private static final String PRODUCER_GROUP_NAME = "keycloak-callback";
-  private static final String TAGS = "registration";
+//  private static final String PRODUCER_GROUP_NAME = "keycloak-callback";
+//  private static final String TAGS = "registration";
   private static final String KEY = "id";
 
   private final DefaultMQProducer producer;
   private String topic;
+  private String tags;
   private boolean require;
 
   public RocketmqCallbackProvider(Config.Scope config) {
 
 
     topic = config.get(TOPIC_PARAM_NAME);
+    tags = config.get(TAGS_PARAM_NAME);
 
     require = Optional.ofNullable(config.get(REQUIRE_PARAM_NAME))
             .map(v -> !("false".equals(v.toLowerCase()) || "no".equals(v.toLowerCase())))
             .orElse(true);
 
-    producer = new DefaultMQProducer(PRODUCER_GROUP_NAME);
+    producer = new DefaultMQProducer(config.get(GROUP_PARAM_NAME));
     producer.setNamesrvAddr(config.get(NAME_SERVER_ADDRESS_PARAM_NAME));
     try {
       producer.start();
@@ -62,11 +67,11 @@ public class RocketmqCallbackProvider implements CallbackSenderService {
 
   @Override
   public void registrationCallback(UserModel user) {
-    for (int i = 0; i < 10000000; i++)
+
       try {
         {
           Message msg = new Message(topic,// topic
-                  TAGS,// tag
+                  tags,// tag
                   KEY,// key
                   user.getId().getBytes(RemotingHelper.DEFAULT_CHARSET));// body
           SendResult sendResult = producer.send(msg);

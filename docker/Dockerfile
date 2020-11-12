@@ -2,8 +2,13 @@ FROM jboss/keycloak:11.0.3
 
 WORKDIR /tmp
 
-RUN curl -fSL https://repo1.maven.org/maven2/com/alibaba/rocketmq/rocketmq-client/3.6.2.Final/rocketmq-client-3.6.2.Final.jar -o rocketmq-client-3.6.2.Final.jar
-
+RUN curl -fSL https://repo1.maven.org/maven2/org/apache/rocketmq/rocketmq-client/4.4.0/rocketmq-client-4.4.0.jar -o rocketmq-client-4.4.0.jar \
+  && curl -fSL https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar -o commons-lang3-3.4.jar \
+  && curl -fSL https://repo1.maven.org/maven2/org/apache/rocketmq/rocketmq-remoting/4.4.0/rocketmq-remoting-4.4.0.jar -o rocketmq-remoting-4.4.0.jar \
+  && curl -fSL https://repo1.maven.org/maven2/com/alibaba/fastjson/1.2.51/fastjson-1.2.51.jar -o fastjson-1.2.51.jar \
+  && curl -fSL https://repo1.maven.org/maven2/org/apache/rocketmq/rocketmq-logging/4.4.0/rocketmq-logging-4.4.0.jar -o rocketmq-logging-4.4.0.jar \
+  && curl -fSL https://repo1.maven.org/maven2/io/netty/netty-tcnative-boringssl-static/1.1.33.Fork26/netty-tcnative-boringssl-static-1.1.33.Fork26.jar -o netty-tcnative-boringssl-static-1.1.33.Fork26.jar \
+  && curl -fSL https://repo1.maven.org/maven2/org/apache/rocketmq/rocketmq-common/4.4.0/rocketmq-common-4.4.0.jar -o rocketmq-common-4.4.0.jar
 # yuntongxin provider need gson 2.8.6, keycloak 10.0.2 gson version is low need higher
 #RUN curl -fSL https://repo1.maven.org/maven2/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar -o gson-2.8.6.jar
 

@@ -6,13 +6,13 @@ import org.keycloak.Config;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 
-public class DefaultCallbackServiceProviderFactory implements CallbackServiceProviderFactory {
+public class CallbackServiceProviderFactoryImpl implements CallbackServiceProviderFactory {
 
   private Config.Scope scope;
 
   @Override
   public CallbackService create(KeycloakSession keycloakSession) {
-    return new DefaultCallbackService(keycloakSession,scope);
+    return new CallbackServiceImpl(keycloakSession,scope);
   }
 
   @Override

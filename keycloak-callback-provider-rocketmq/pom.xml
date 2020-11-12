@@ -20,9 +20,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.alibaba.rocketmq</groupId>
+      <groupId>org.apache.rocketmq</groupId>
       <artifactId>rocketmq-client</artifactId>
-      <version>3.6.2.Final</version>
+      <version>4.4.0</version>
     </dependency>
   </dependencies>
 
