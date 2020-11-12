@@ -1,0 +1,2 @@
+cc.coopersoft.keycloak.callback.providers.HttpGetCallback
+cc.coopersoft.keycloak.callback.providers.HttpPostCallback

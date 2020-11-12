@@ -1,0 +1,7 @@
+
+cd $REMOTE_PATH/keycloak/
+docker-compose  down
+docker rmi keycloak-callback:snapshot
+docker load<keycloak-callback.tar \
+  && rm -f keycloak-callback.tar \
+  && docker-compose  up

@@ -1,0 +1,82 @@
+version: '3'
+services:
+
+
+  database:
+    image: coopersoft/mariadb-min:v1
+    #    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - "/home/data/db:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: p0stgr@s
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: k@ycl0ck
+      TZ: Asia/Shanghai
+
+
+  rmqnamesrv:
+    image: rocketmqinc/rocketmq
+    ports:
+      - 9876:9876
+    volumes:
+      - /home/data/rocketmq/logs:/home/rocketmq/logs
+      - /home/data/rocketmq/store:/home/recketmq/store
+    command: sh mqnamesrv
+
+  rmqborker:
+    image: rocketmqinc/rocketmq
+    ports:
+      - 10909:10909
+      - 10911:10911
+      - 10912:10912
+    volumes:
+      - /home/data/rocketmq/logs:/home/rocketmq/logs
+      - /home/data/rocketmq/store:/home/rocketmq/store
+      - /home/data/rocketmq/broker.conf:/opt/rocketmq-4.4.0/conf/broker.conf
+    command: sh mqbroker -n rmqnamesrv:9876 -c ../conf/broker.conf
+    links:
+      - rmqnamesrv:rmqnamesrv
+    depends_on:
+      - rmqnamesrv
+
+
+  # rocket 控制台 非必要
+  rmqconsole:
+    image: styletang/rocketmq-console-ng
+    ports:
+      - 8087:8080
+    depends_on:
+      - rmqnamesrv
+    links:
+      - rmqnamesrv:rmqnamesrv
+    environment:
+      - JAVA_OPTS= -Dlogging.level.root=info -Drocketmq.namesrv.addr=rmqnamesrv:9876
+      - Dcom.rocketmq.sendMessageWithVIPChannel=false
+
+
+  keycloak:
+    image: keycloak-callback:snapshot
+    #    restart: always
+    ports:
+      - 8901:8080
+    environment:
+      KEYCLOAK_CALLBACK_ROCKETMQ_NAME_SERVER: "rmqnamesrv:9876"
+      KEYCLOAK_CALLBACK_ROCKETMQ_REQUIRE: "false"
+      KEYCLOAK_CALLBACK_ROCKETMQ_TOPIC: "test-topic"
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      DB_VENDOR: mariadb
+      DB_ADDR: database
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: k@ycl0ck
+      DB_PORT: 3306
+    links:
+      - database:database
+      - rmqnamesrv:rmqnamesrv
+    depends_on:
+      - database
+      - rmqnamesrv

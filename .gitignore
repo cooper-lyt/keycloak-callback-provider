@@ -1,0 +1,5 @@
+# Project exclude paths
+/keycloak-callback-provider/target/
+/keycloak-callback-provider-http/target/
+/keycloak-callback-provider-rocketmq/target/
+/target/
