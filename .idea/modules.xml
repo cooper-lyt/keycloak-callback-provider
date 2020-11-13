@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/keycloak-callback-provider/keycloak-callback-provider.iml" filepath="$PROJECT_DIR$/keycloak-callback-provider/keycloak-callback-provider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/keycloak-callback-provider-http/keycloak-callback-provider-http.iml" filepath="$PROJECT_DIR$/keycloak-callback-provider-http/keycloak-callback-provider-http.iml" />
+      <module fileurl="file://$PROJECT_DIR$/keycloak-callback-provider-parent.iml" filepath="$PROJECT_DIR$/keycloak-callback-provider-parent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/keycloak-callback-provider-rocketmq/keycloak-callback-provider-rocketmq.iml" filepath="$PROJECT_DIR$/keycloak-callback-provider-rocketmq/keycloak-callback-provider-rocketmq.iml" />
+    </modules>
+  </component>
+</project>

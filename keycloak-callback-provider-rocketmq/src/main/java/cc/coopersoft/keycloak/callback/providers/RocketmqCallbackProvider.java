@@ -12,6 +12,7 @@ import org.apache.rocketmq.remoting.common.RemotingUtil;
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.RealmModel;
 
 import java.util.Optional;
 
@@ -35,18 +36,20 @@ public class RocketmqCallbackProvider implements CallbackSenderService {
   private String tags;
   private boolean require;
 
-  public RocketmqCallbackProvider(Config.Scope config) {
+  private String getConfig(Config.Scope config, RealmModel realm, String paramName){
+    return Optional.ofNullable(config.get(realm.getName().toUpperCase() + "_" + paramName)).orElse(config.get(paramName));
+  }
 
+  public RocketmqCallbackProvider(Config.Scope config, RealmModel realm) {
 
-    topic = config.get(TOPIC_PARAM_NAME);
-    tags = config.get(TAGS_PARAM_NAME);
-
-    require = Optional.ofNullable(config.get(REQUIRE_PARAM_NAME))
+    topic = getConfig(config,realm,TOPIC_PARAM_NAME);
+    tags = getConfig(config,realm,TAGS_PARAM_NAME);
+    require = Optional.ofNullable(config.get(realm.getName().toUpperCase() + "_" + REQUIRE_PARAM_NAME))
             .map(v -> !("false".equals(v.toLowerCase()) || "no".equals(v.toLowerCase())))
             .orElse(true);
 
-    producer = new DefaultMQProducer(config.get(GROUP_PARAM_NAME));
-    producer.setNamesrvAddr(config.get(NAME_SERVER_ADDRESS_PARAM_NAME));
+    producer = new DefaultMQProducer(getConfig(config,realm,GROUP_PARAM_NAME));
+    producer.setNamesrvAddr(getConfig(config,realm,NAME_SERVER_ADDRESS_PARAM_NAME));
     try {
       producer.start();
     } catch (MQClientException e) {

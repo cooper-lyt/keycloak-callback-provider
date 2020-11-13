@@ -12,7 +12,7 @@ public class RocketmqCallbackProviderFactory implements CallbackSenderServicePro
 
   @Override
   public CallbackSenderService create(KeycloakSession keycloakSession) {
-    return new RocketmqCallbackProvider(scope);
+    return new RocketmqCallbackProvider(scope,keycloakSession.getContext().getRealm());
   }
 
   @Override

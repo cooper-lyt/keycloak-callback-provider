@@ -10,8 +10,10 @@ import org.keycloak.Config;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.RealmModel;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class HttpPostCallback implements CallbackSenderService, CallbackSenderServiceProviderFactory {
   private static final String URL_PARAM_NAME = "url";
@@ -19,10 +21,12 @@ public class HttpPostCallback implements CallbackSenderService, CallbackSenderSe
           = MediaType.parse("application/json; charset=utf-8");
   private OkHttpClient client;
   private Config.Scope scope;
+  private RealmModel realm;
 
   @Override
   public CallbackSenderService create(KeycloakSession keycloakSession) {
     client = new OkHttpClient();
+    realm = keycloakSession.getContext().getRealm();
     return this;
   }
 
@@ -48,9 +52,12 @@ public class HttpPostCallback implements CallbackSenderService, CallbackSenderSe
 
   @Override
   public void registrationCallback(UserModel user) {
+    String url = Optional.ofNullable(scope.get(realm.getName().toUpperCase() + "_" + URL_PARAM_NAME))
+            .orElse(scope.get(URL_PARAM_NAME));
+
     Gson gson = new Gson();
     Request request = new Request.Builder()
-            .url(scope.get(URL_PARAM_NAME))
+            .url(url)
             .post(RequestBody.create(JSON, gson.toJson(user)))
             .build();
     ;

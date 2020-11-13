@@ -21,6 +21,12 @@
         <module name="keycloak-callback-provider-rocketmq" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="keycloak-callback-provider" target="10" />
+      <module name="keycloak-callback-provider-http" target="10" />
+      <module name="keycloak-callback-provider-parent" target="1.8" />
+      <module name="keycloak-callback-provider-rocketmq" target="10" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_STRING" value="-encoding utf-8" />
