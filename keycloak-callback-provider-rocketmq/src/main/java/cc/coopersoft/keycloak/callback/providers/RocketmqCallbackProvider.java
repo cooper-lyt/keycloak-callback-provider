@@ -1,6 +1,8 @@
 package cc.coopersoft.keycloak.callback.providers;
 
 import cc.coopersoft.keycloak.callback.providers.spi.CallbackSenderService;
+import org.apache.rocketmq.acl.common.AclClientRPCHook;
+import org.apache.rocketmq.acl.common.SessionCredentials;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
@@ -13,6 +15,7 @@ import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.RealmModel;
+import org.keycloak.validation.Validator;
 
 import java.util.Optional;
 
@@ -26,12 +29,14 @@ public class RocketmqCallbackProvider implements CallbackSenderService {
   private static final String REQUIRE_PARAM_NAME = "require";
   private static final String GROUP_PARAM_NAME ="group";
   private static final String TAGS_PARAM_NAME ="tags";
+  private static final String ACCESS_KEY_PARAM_NAME = "access-key";
+  private static final String SECRET_KEY_PARAM_NAME = "secret-key";
 
 //  private static final String PRODUCER_GROUP_NAME = "keycloak-callback";
 //  private static final String TAGS = "registration";
   private static final String KEY = "id";
 
-  private final DefaultMQProducer producer;
+  private DefaultMQProducer producer;
   private String topic;
   private String tags;
   private boolean require;
@@ -48,7 +53,15 @@ public class RocketmqCallbackProvider implements CallbackSenderService {
             .map(v -> !("false".equals(v.toLowerCase()) || "no".equals(v.toLowerCase())))
             .orElse(true);
 
-    producer = new DefaultMQProducer(getConfig(config,realm,GROUP_PARAM_NAME));
+    Optional.ofNullable(config.get(ACCESS_KEY_PARAM_NAME))
+            .ifPresentOrElse(
+                    k -> producer = new DefaultMQProducer(getConfig(config,realm,GROUP_PARAM_NAME),
+                      new AclClientRPCHook(new SessionCredentials(k, config.get(SECRET_KEY_PARAM_NAME))))
+                    ,
+                    () -> producer = new DefaultMQProducer(getConfig(config,realm,GROUP_PARAM_NAME)));
+
+    producer = new DefaultMQProducer(getConfig(config,realm,GROUP_PARAM_NAME),
+            new AclClientRPCHook(new SessionCredentials("YOUR ACCESS KEY", "YOUR SECRET KEY")));
     producer.setNamesrvAddr(getConfig(config,realm,NAME_SERVER_ADDRESS_PARAM_NAME));
     try {
       producer.start();
