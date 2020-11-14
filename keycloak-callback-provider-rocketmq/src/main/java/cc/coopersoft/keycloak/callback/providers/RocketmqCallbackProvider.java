@@ -8,14 +8,11 @@ import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.Message;
-import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.remoting.common.RemotingHelper;
-import org.apache.rocketmq.remoting.common.RemotingUtil;
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.RealmModel;
-import org.keycloak.validation.Validator;
 
 import java.util.Optional;
 
@@ -60,8 +57,6 @@ public class RocketmqCallbackProvider implements CallbackSenderService {
                     ,
                     () -> producer = new DefaultMQProducer(getConfig(config,realm,GROUP_PARAM_NAME)));
 
-    producer = new DefaultMQProducer(getConfig(config,realm,GROUP_PARAM_NAME),
-            new AclClientRPCHook(new SessionCredentials("YOUR ACCESS KEY", "YOUR SECRET KEY")));
     producer.setNamesrvAddr(getConfig(config,realm,NAME_SERVER_ADDRESS_PARAM_NAME));
     try {
       producer.start();
